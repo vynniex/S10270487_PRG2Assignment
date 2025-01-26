@@ -22,15 +22,30 @@ namespace S10270487_PRG2Assignment
             GateName = gName;
             SupportsCFFT = suppCFFT;
             SupportsDDJB = suppDDJB;
-            SupportsLWTT |= suppLWTT;
+            SupportsLWTT = suppLWTT;
             Flight = flight;
         }
 
         // methods
         public double CalculateFees()
         {
-            return 0.0;
+            double baseFee = 300;
+            if (SupportsCFFT && Flight is CFFTFlight)
+            {
+                baseFee += ((CFFTFlight)Flight).RequestFee;
+            }
+            if (SupportsDDJB && Flight is DDJBFlight)
+            {
+                baseFee += ((DDJBFlight)Flight).RequestFee;
+            }
+            if (SupportsLWTT && Flight is LWTTFlight)
+            {
+                baseFee += ((LWTTFlight)Flight).RequestFee;
+            }
+
+            return baseFee;
         }
+
         public override string ToString()
         {
             return "Gate Name: " + GateName +
