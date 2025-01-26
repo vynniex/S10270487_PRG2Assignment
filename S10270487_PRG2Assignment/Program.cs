@@ -42,7 +42,7 @@ while (true)
         Console.WriteLine("");
     }
 }
-Console.WriteLine("Goodbye!")
+Console.WriteLine("Goodbye!");
 
 // Methods
 void DisplayMenu()

@@ -6,10 +6,10 @@ namespace S10270487_PRG2Assignment
     {
         // properties
         public string TerminalName { get; set; }
-        public Dictionary<string, Airline> Airlines { get; set } = new Dictionary<string, Airline>();
-        public Dictionary<string, Flight> Flights { get; set } = new Dictionary<string, Flight>();
-        public Dictionary<string, BoardingGate> BoardingGates { get; set } = new Dictionary<string, BoardingGate>();
-        public Dictionary<string, double> GateFees { get; set } = new Dictionary<string, double>();
+        public Dictionary<string, Airline> Airlines { get; set; } = new Dictionary<string, Airline>();
+        public Dictionary<string, Flight> Flights { get; set; } = new Dictionary<string, Flight>();
+        public Dictionary<string, BoardingGate> BoardingGates { get; set; } = new Dictionary<string, BoardingGate>();
+        public Dictionary<string, double> GateFees { get; set; } = new Dictionary<string, double>();
 
         // constructors
         public Terminal() { }
@@ -23,7 +23,7 @@ namespace S10270487_PRG2Assignment
         {
             if (!Airlines.ContainsKey(a.Code))
             {
-                Airlines[a.Code] = airline;
+                Airlines[a.Code] = a;
                 return true;
             }
             return false;
@@ -33,7 +33,7 @@ namespace S10270487_PRG2Assignment
         {
             if (!BoardingGates.ContainsKey(b.GateName))
             {
-                BoardingGates[b.GateName] = boardingGate;
+                BoardingGates[b.GateName] = b;
                 return true;
             }
             return false;
@@ -54,7 +54,7 @@ namespace S10270487_PRG2Assignment
 
         public override string ToString()
         {
-            return "Terminal Name: " + terminalName;
+            return "Terminal Name: " + TerminalName;
         }
     }
 }

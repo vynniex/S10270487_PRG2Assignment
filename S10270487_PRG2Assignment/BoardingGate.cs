@@ -1,4 +1,5 @@
-﻿using System;
+﻿using S10270487_PRG2Assignment.Specialized_Flight_Classes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,19 +31,21 @@ namespace S10270487_PRG2Assignment
         public double CalculateFees()
         {
             double baseFee = 300;
-            if (SupportsCFFT && Flight is CFFTFlight)
+            if (Flight != null)
             {
-                baseFee += ((CFFTFlight)Flight).RequestFee;
+                if (SupportsCFFT && Flight is CFFTFlight)
+                {
+                    baseFee += ((CFFTFlight)Flight).RequestFee;
+                }
+                if (SupportsDDJB && Flight is DDJBFlight)
+                {
+                    baseFee += ((DDJBFlight)Flight).RequestFee;
+                }
+                if (SupportsLWTT && Flight is LWTTFlight)
+                {
+                    baseFee += ((LWTTFlight)Flight).RequestFee;
+                }
             }
-            if (SupportsDDJB && Flight is DDJBFlight)
-            {
-                baseFee += ((DDJBFlight)Flight).RequestFee;
-            }
-            if (SupportsLWTT && Flight is LWTTFlight)
-            {
-                baseFee += ((LWTTFlight)Flight).RequestFee;
-            }
-
             return baseFee;
         }
 
