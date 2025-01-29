@@ -30,11 +30,8 @@ namespace S10270487_PRG2Assignment
         public abstract double CalculateFees();
         public override string ToString()
         {
-            return "Flight Number: " + FlightNumber +
-                "\tOrigin: " + Origin +
-                "\tDestination: " + Destination +
-                "\tExpected Time: " + ExpectedTime +
-                "\tStatus: " + Status;
+            return string.Format("{0,-15} {1,-20} {2,-25} {3,-20} {4,-15}",
+                FlightNumber, Origin, Destination, ExpectedTime.ToString("dd/MM/yyyy hh:mm tt"), Status);
         }
     }
 }

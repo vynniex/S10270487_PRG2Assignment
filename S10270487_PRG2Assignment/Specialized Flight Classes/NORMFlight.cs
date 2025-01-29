@@ -8,6 +8,12 @@ namespace S10270487_PRG2Assignment.Specialized_Flight_Classes
 {
     class NORMFlight : Flight   // inheritance
     {
+        // constructors
+        public NORMFlight(string fNo, string origin, string dest, DateTime expTime, string status) : base(fNo, origin, dest, expTime, status)
+        {
+            
+        }
+
         // methods
         public override double CalculateFees()
         {

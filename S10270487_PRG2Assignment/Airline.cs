@@ -15,7 +15,7 @@ namespace S10270487_PRG2Assignment
 
         // constructors
         public Airline() { }
-        public Airline(string name, string code, Dictionary<string, Flight> flights)
+        public Airline(string name, string code)
         {
             Name = name;
             Code = code;

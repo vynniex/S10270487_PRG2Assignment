@@ -6,16 +6,24 @@
 
 using S10270487_PRG2Assignment;
 
+// Load All Files -
+LoadAirlines();
+LoadBoardingGates();
+LoadFlights();
+
 // Main Program
 while (true)
 {
     DisplayMenu();
-    Console.WriteLine("Please select your option: ");
+    Console.Write("Please select your option: ");
     string option = Console.ReadLine();
-    if (option == "0") { break; }
+    if (option == "0")
+    {
+        break;
+    }
     else if (option == "1")
     {
-        Console.WriteLine("");
+        ListAllFlights();
     }
     else if (option == "2")
     {
@@ -44,7 +52,7 @@ while (true)
 }
 Console.WriteLine("Goodbye!");
 
-// Methods
+// DisplayMenu Method -
 void DisplayMenu()
 {
     Console.WriteLine("=============================================");
@@ -61,59 +69,93 @@ void DisplayMenu()
     Console.WriteLine("---------------------------");
 }
 
-// Dictionaries
+// Dictionaries -
 Dictionary<string, Airline> airlineDict = new Dictionary<string, Airline>();
 Dictionary<string, BoardingGate> boardingGateDict = new Dictionary<string, BoardingGate>();
 Dictionary<string, Flight> flightDict = new Dictionary<string, Flight>();
 
-// load files
-LoadFlights(flightDict);
+// Load Methods
+void LoadAirlines()
+{
+    using (StreamReader sr = new StreamReader("airlines.csv"))
+    {
+        sr.ReadLine();  // skips the header
+        while (!sr.EndOfStream)
+        {
+            string[] data = sr.ReadLine().Split(',');
+            string airCode = data[0].Trim();
+            string airName = data[1].Trim();
 
-void LoadFlights(Dictionary<string, Flight> flightDict)
+            Airline airline = new Airline(airCode, airName);
+        }
+    }
+}
+
+void LoadBoardingGates()
+{
+    using (StreamReader sr = new StreamReader("boardinggates.csv"))
+    {
+        sr.ReadLine();  // skips the header
+        while (!sr.EndOfStream)
+        {
+            string[] data = sr.ReadLine().Split(',');
+            string gateNo = data[0].Trim();
+            string specialReqCode = data.Length > 1 ? data[1].Trim() : null;
+
+            bool supportsCFTT = specialReqCode == "CFFT";
+            bool supportsDDJB = specialReqCode == "DDJB";
+            bool supportsLWTT = specialReqCode == "LWTT";
+
+            BoardingGate gate = new BoardingGate(gateNo, supportsCFTT, supportsDDJB, supportsLWTT);
+            boardingGateDict[gateNo] = gate;
+        }
+    }
+}
+
+void LoadFlights()
 {
     using (StreamReader sr = new StreamReader("flights.csv"))
     {
-        string s = sr.ReadLine();
+        sr.ReadLine();  // skips the header
 
-        while ((s = sr.ReadLine()) != null)
+        while (!sr.EndOfStream)
         {
-            string[] data = s.Split(',');
-            string fNum = data[0];
-            string fOrigin = data[1];
-            string fDest = data[2];
-            DateTime eDepart_Arrival = DateTime.Parse(data[3]);
+            string[] data = sr.ReadLine().Split(',');
+            string flightNo = data[0].Trim();
+            string airlineCode = data[1].Trim();
+            string flightOrigin = data[2].Trim();
+            string flightDest = data[3].Trim();
+            DateTime expDepArrTime = DateTime.Parse(data[4].Trim());
 
-            // Add to the flight dictionary
-            Flight flight = new Flight(fNum, fOrigin, fDest, eDepart_Arrival);
-            flightDict[fNum] = flight;
+            Flight flight = new S10270487_PRG2Assignment.Specialized_Flight_Classes.NORMFlight(flightNo, flightOrigin, flightDest, expDepArrTime, "Scheduled");
+
+            if (airlineDict.ContainsKey(airlineCode))
+            {
+                airlineDict[airlineCode].AddFlight(flight);
+            }
+
+            flightDict[flightNo] = flight;  // adds flight to dict
         }
     }
+}
 
-    using (StreamReader sr = new StreamReader("airlines.csv"))
+// Option 1 - List All Flights
+void ListAllFlights()
+{
+    Console.WriteLine("{0,-15} {1,-20} {2,-25} {3,-20} {4,-15}", 
+        "Flight Number", "Airline Name", "Origin", "Destination", "Expected");
+
+    foreach (var flight in flightDict.Values)
     {
-        string s = sr.ReadLine();
+        string airlineName = airlineDict.Values.FirstOrDefault(a => a.Flights.ContainsKey(flight.FlightNumber))?.Name ?? "Unknown";
 
-        while ((s = sr.ReadLine()) != null)
-        {
-            string[] data = s.Split(',');
-            string airname = data[0];
-            string aircode = data[1];
-
-            // Add to the airline dictionary
-            Airline airline = new Airline(aircode, airname);
-            airlineDict[aircode] = airline;
-        }
+        Console.WriteLine("{0,-15} {1,-20} {2,-25} {3,-20} {4,-15}",
+            flight.FlightNumber, airlineName, flight.Origin, flight.Destination, flight.ExpectedTime.ToString("dd/MM/yyyy hh:mm tt"));
     }
-    Console.WriteLine("{0,-15} {1,-20} {2,-23} {3,-20} {4,-15}",
-                "Flight Number", "Airline Number", "Origin", "Destination", "Expected Departure/Arrival Time");
-    foreach (KeyValuePair<string, Airline> a in airlineDict)
-    {
+}
 
-        foreach (KeyValuePair<string, Flight> f in flightDict)
-        {
+// Option 2 - List Boarding Gates
+void AssignBoardingGate()
+{
 
-            Console.WriteLine("{0,-15} {1,-20} {2,-23} {3,-20} {4,-15}",
-                f.Value.FlightNumber, a.Value.Name, f.Value.Origin, f.Value.Destination, f.Value.ExpectedTime);
-        }
-    }
 }

@@ -18,13 +18,13 @@ namespace S10270487_PRG2Assignment
 
         // constructors
         public BoardingGate() { }
-        public BoardingGate(string gName, bool suppCFFT, bool suppDDJB, bool suppLWTT, Flight flight)
+        public BoardingGate(string gName, bool suppCFFT, bool suppDDJB, bool suppLWTT)
         {
             GateName = gName;
             SupportsCFFT = suppCFFT;
             SupportsDDJB = suppDDJB;
             SupportsLWTT = suppLWTT;
-            Flight = flight;
+            Flight = null;  // defaults to no flight assigned
         }
 
         // methods
