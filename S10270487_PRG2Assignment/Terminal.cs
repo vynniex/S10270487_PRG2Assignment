@@ -41,7 +41,8 @@ namespace S10270487_PRG2Assignment
 
         public Airline GetAirlineFromFlight(Flight f)
         {
-            return Airlines.Values.FirstOrDefault(airline => airline.Flights.ContainsKey(f.FlightNumber)) ?? new Airline("Unknown", "XX");
+            string airlineCode = f.FlightNumber.Substring(0, 2);
+            return Airlines.ContainsKey(airlineCode) ? Airlines[airlineCode] : new Airline("Unknown", "XX");
         }
 
         public void PrintAirlineFees()

@@ -8,15 +8,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="CSV Files\airlines.csv">
+    <None Update="airlines.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="CSV Files\boardinggates.csv">
+    <None Update="boardinggates.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="CSV Files\flights.csv">
+    <None Update="flights.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="CSV Files\" />
   </ItemGroup>
 
 </Project>

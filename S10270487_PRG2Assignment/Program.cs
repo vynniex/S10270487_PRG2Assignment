@@ -5,6 +5,12 @@
 //==========================================================
 
 using S10270487_PRG2Assignment;
+using S10270487_PRG2Assignment.Specialized_Flight_Classes;
+
+// Dictionaries -
+Dictionary<string, Airline> airlineDict = new Dictionary<string, Airline>();
+Dictionary<string, BoardingGate> boardingGateDict = new Dictionary<string, BoardingGate>();
+Dictionary<string, Flight> flightDict = new Dictionary<string, Flight>();
 
 // Load All Files -
 LoadAirlines();
@@ -15,14 +21,14 @@ LoadFlights();
 while (true)
 {
     DisplayMenu();
-    Console.Write("Please select your option: ");
-    string option = Console.ReadLine();
-    if (option == "0")
+    Console.Write("\nPlease select your option: ");
+    string option = Console.ReadLine().Trim();
+
+    if (option == "1")
     {
-        break;
-    }
-    else if (option == "1")
-    {
+        Console.WriteLine("=============================================");
+        Console.WriteLine("List of Flights for Changi Airport Terminal 5");
+        Console.WriteLine("=============================================");
         ListAllFlights();
     }
     else if (option == "2")
@@ -49,6 +55,10 @@ while (true)
     {
         Console.WriteLine("");
     }
+    else if (option == "0")
+    {
+        break;
+    }
 }
 Console.WriteLine("Goodbye!");
 
@@ -66,13 +76,8 @@ void DisplayMenu()
     Console.WriteLine("6. Modify Flight Details");
     Console.WriteLine("7. Display Flight Schedule");
     Console.WriteLine("0. Exit");
-    Console.WriteLine("---------------------------");
+    Console.WriteLine("----------------------------------------------");
 }
-
-// Dictionaries -
-Dictionary<string, Airline> airlineDict = new Dictionary<string, Airline>();
-Dictionary<string, BoardingGate> boardingGateDict = new Dictionary<string, BoardingGate>();
-Dictionary<string, Flight> flightDict = new Dictionary<string, Flight>();
 
 // Load Methods
 void LoadAirlines()
@@ -83,10 +88,11 @@ void LoadAirlines()
         while (!sr.EndOfStream)
         {
             string[] data = sr.ReadLine().Split(',');
-            string airCode = data[0].Trim();
-            string airName = data[1].Trim();
+            string airName = data[0].Trim();
+            string airlineCode = data[1].Trim();
 
-            Airline airline = new Airline(airCode, airName);
+            Airline airline = new Airline(airlineCode, airName);
+            airlineDict[airlineCode] = airline;
         }
     }
 }
@@ -122,18 +128,30 @@ void LoadFlights()
         {
             string[] data = sr.ReadLine().Split(',');
             string flightNo = data[0].Trim();
-            string airlineCode = data[1].Trim();
-            string flightOrigin = data[2].Trim();
-            string flightDest = data[3].Trim();
-            DateTime expDepArrTime = DateTime.Parse(data[4].Trim());
+            string flightOrigin = data[1].Trim();
+            string flightDest = data[2].Trim();
+            DateTime expDepArrTime = DateTime.Parse(data[3].Trim());
+            string specialReqCode = data.Length > 4 ? data[4].Trim() : "";  // handles empty requests
 
-            Flight flight = new S10270487_PRG2Assignment.Specialized_Flight_Classes.NORMFlight(flightNo, flightOrigin, flightDest, expDepArrTime, "Scheduled");
+            Flight flight;
 
-            if (airlineDict.ContainsKey(airlineCode))
+            if (specialReqCode == "CFFT")
             {
-                airlineDict[airlineCode].AddFlight(flight);
+                flight = new CFFTFlight(flightNo, flightOrigin, flightDest, expDepArrTime, "Scheduled", 500);
             }
-
+            else if (specialReqCode == "DDJB")
+            {
+                flight = new DDJBFlight(flightNo, flightOrigin, flightDest, expDepArrTime, "Scheduled", 700);
+            }
+            else if (specialReqCode == "LWTT")
+            {
+                flight = new LWTTFlight(flightNo, flightOrigin, flightDest, expDepArrTime, "Scheduled", 600);
+            }
+            else
+            {
+                flight = new NORMFlight(flightNo, flightOrigin, flightDest, expDepArrTime, "Scheduled");
+            }
+            
             flightDict[flightNo] = flight;  // adds flight to dict
         }
     }
@@ -143,14 +161,20 @@ void LoadFlights()
 void ListAllFlights()
 {
     Console.WriteLine("{0,-15} {1,-20} {2,-25} {3,-20} {4,-15}", 
-        "Flight Number", "Airline Name", "Origin", "Destination", "Expected");
+        "Flight Number", "Airline Name", "Origin", "Destination", "Expected Departure/Arrival Time");
 
     foreach (var flight in flightDict.Values)
     {
-        string airlineName = airlineDict.Values.FirstOrDefault(a => a.Flights.ContainsKey(flight.FlightNumber))?.Name ?? "Unknown";
+        string airlineCode = flight.FlightNumber.Substring(0, 2).Trim();
+        string airlineName = "";
+
+        if (airlineDict.ContainsKey(airlineCode))
+        {
+            airlineName = airlineDict[airlineCode].Name;
+        }
 
         Console.WriteLine("{0,-15} {1,-20} {2,-25} {3,-20} {4,-15}",
-            flight.FlightNumber, airlineName, flight.Origin, flight.Destination, flight.ExpectedTime.ToString("dd/MM/yyyy hh:mm tt"));
+        flight.FlightNumber, airlineName, flight.Origin, flight.Destination, flight.ExpectedTime.ToString("dd/MM/yyyy hh:mm tt"));
     }
 }
 
