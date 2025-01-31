@@ -52,7 +52,10 @@ while (true)
     }
     else if (option == "5")
     {
-        Console.WriteLine("");
+        Console.WriteLine("=============================================");
+        Console.WriteLine("List of Airlines for Changi Airport Terminal 5");
+        Console.WriteLine("=============================================");
+        DisplayAirlineFlights();
     }
     else if (option == "6")
     {
@@ -260,3 +263,39 @@ void AssignBoardingGates()
         Console.WriteLine($"Flight {flightNo} has been assigned to Boarding Gate {gateNo}!");
     }
 }
+
+// Option 5 - Display Airline Flights
+void DisplayAirlineFlights()
+{
+    Console.WriteLine("{0,-15} {1,-30}", "Airline Code", "Airline Name");
+
+    foreach (var airline in airlineDict.Values)
+    {
+        Console.WriteLine("{0,-15} {1,-30}", airline.Code, airline.Name);
+    }
+
+    Console.Write("Enter Airline Code: ");
+    string airlineCode = Console.ReadLine().Trim().ToUpper();
+
+    Airline selectedAirline = airlineDict[airlineCode];
+
+    Console.WriteLine("=============================================");
+    Console.WriteLine($"List of Flights for {selectedAirline.Name}");
+    Console.WriteLine("=============================================");
+
+    var airlineFlights = selectedAirline.Flights.Values.OrderBy(f => f.ExpectedTime).ToList();
+
+    Console.WriteLine("{0,-15} {1,-20} {2,-25} {3,-20} {4,-15}",
+        "Flight Number", "Airline Name", "Origin", "Destination", "Expected Departure/Arrival Time");
+
+    foreach (var flight in airlineFlights)
+    {
+        Console.WriteLine("{0,-15} {1,-20} {2,-25} {3,-20} {4,-15}",
+        flight.FlightNumber, selectedAirline.Name, flight.Origin, flight.Destination, flight.ExpectedTime.ToString("dd/M/yyyy h:mm:ss tt"));
+    }
+}
+
+// Option 6 - Modify Flight Details
+
+
+// Option 7 - Display Flight Schedule
