@@ -16,6 +16,7 @@ Dictionary<string, Flight> flightDict = new Dictionary<string, Flight>();
 LoadAirlines();
 LoadBoardingGates();
 LoadFlights();
+LoadBoardingGates();
 
 // Main Program
 while (true)
@@ -33,7 +34,10 @@ while (true)
     }
     else if (option == "2")
     {
-        Console.WriteLine("");
+        Console.WriteLine("=============================================");
+        Console.WriteLine("List of Boarding Gates for Changi Airport Terminal 5");
+        Console.WriteLine("=============================================");
+        ListBoardingGates();
     }
     else if (option == "3")
     {
@@ -88,10 +92,10 @@ void LoadAirlines()
         while (!sr.EndOfStream)
         {
             string[] data = sr.ReadLine().Split(',');
-            string airName = data[0].Trim();
+            string airlineName = data[0].Trim();
             string airlineCode = data[1].Trim();
 
-            Airline airline = new Airline(airlineCode, airName);
+            Airline airline = new Airline(airlineName, airlineCode);
             airlineDict[airlineCode] = airline;
         }
     }
@@ -101,18 +105,17 @@ void LoadBoardingGates()
 {
     using (StreamReader sr = new StreamReader("boardinggates.csv"))
     {
-        sr.ReadLine();  // skips the header
+        sr.ReadLine();
+
         while (!sr.EndOfStream)
         {
             string[] data = sr.ReadLine().Split(',');
             string gateNo = data[0].Trim();
-            string specialReqCode = data.Length > 1 ? data[1].Trim() : null;
+            bool supportsDDJB = bool.Parse(data[1].Trim());
+            bool supportsCFFT = bool.Parse(data[2].Trim());
+            bool supportsLWTT = bool.Parse(data[3].Trim());
 
-            bool supportsCFTT = specialReqCode == "CFFT";
-            bool supportsDDJB = specialReqCode == "DDJB";
-            bool supportsLWTT = specialReqCode == "LWTT";
-
-            BoardingGate gate = new BoardingGate(gateNo, supportsCFTT, supportsDDJB, supportsLWTT);
+            BoardingGate gate = new BoardingGate(gateNo, supportsCFFT, supportsDDJB, supportsLWTT);
             boardingGateDict[gateNo] = gate;
         }
     }
@@ -133,6 +136,8 @@ void LoadFlights()
             DateTime expDepArrTime = DateTime.Parse(data[3].Trim());
             string specialReqCode = data.Length > 4 ? data[4].Trim() : "";  // handles empty requests
 
+            string airlineCode = flightNo.Split(' ')[0];
+
             Flight flight;
 
             if (specialReqCode == "CFFT")
@@ -151,8 +156,10 @@ void LoadFlights()
             {
                 flight = new NORMFlight(flightNo, flightOrigin, flightDest, expDepArrTime, "Scheduled");
             }
-            
-            flightDict[flightNo] = flight;  // adds flight to dict
+
+            airlineDict[airlineCode].AddFlight(flight); // adds flight to airline
+
+            flightDict[flightNo] = flight;  // adds flight to flightDict
         }
     }
 }
@@ -163,23 +170,32 @@ void ListAllFlights()
     Console.WriteLine("{0,-15} {1,-20} {2,-25} {3,-20} {4,-15}", 
         "Flight Number", "Airline Name", "Origin", "Destination", "Expected Departure/Arrival Time");
 
-    foreach (var flight in flightDict.Values)
+    IOrderedEnumerable<Flight> sortedFlights = flightDict.Values.OrderBy(flight => flight.ExpectedTime);
+
+    foreach (var flight in sortedFlights)
     {
-        string airlineCode = flight.FlightNumber.Substring(0, 2).Trim();
-        string airlineName = "";
+        string airlineCode = flight.FlightNumber.Substring(0, 2);
+        string airlineName = airlineDict.ContainsKey(airlineCode) ? airlineDict[airlineCode].Name : "Unknown";
 
-        if (airlineDict.ContainsKey(airlineCode))
-        {
-            airlineName = airlineDict[airlineCode].Name;
-        }
-
-        Console.WriteLine("{0,-15} {1,-20} {2,-25} {3,-20} {4,-15}",
-        flight.FlightNumber, airlineName, flight.Origin, flight.Destination, flight.ExpectedTime.ToString("dd/MM/yyyy hh:mm tt"));
+        Console.WriteLine("{0,-15} {1,-20} {2,-25} {3,-20} {4,-25}",
+            flight.FlightNumber, airlineName, flight.Origin, flight.Destination, flight.ExpectedTime.ToString("d/M/yyyy h:mm:ss tt"));
     }
 }
 
 // Option 2 - List Boarding Gates
-void AssignBoardingGate()
+void ListBoardingGates()
 {
+    Console.WriteLine("{0,-15} {1,-20} {2,-20} {3,-20}",
+        "Gate Name", "DDJB", "CFFT", "LWTT");
 
+    foreach (var gate in boardingGateDict.Values)
+    {
+        string ddjb = gate.SupportsDDJB ? "True" : "False";
+        string cfft = gate.SupportsCFFT ? "True" : "False";
+        string lwtt = gate.SupportsLWTT ? "True" : "False";
+
+        Console.WriteLine("{0,-15} {1,-20} {2,-20} {3,-20}",
+            gate.GateName, ddjb, cfft, lwtt);
+    }
 }
+
