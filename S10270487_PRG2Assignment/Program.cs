@@ -41,7 +41,10 @@ while (true)
     }
     else if (option == "3")
     {
-        Console.WriteLine("");
+        Console.WriteLine("=============================================");
+        Console.WriteLine("Assign a Boarding Gate to a Flight");
+        Console.WriteLine("=============================================");
+        AssignBoardingGates();
     }
     else if (option == "4")
     {
@@ -199,3 +202,61 @@ void ListBoardingGates()
     }
 }
 
+// Option 3 - Assign Boarding Gate To A Flight
+void AssignBoardingGates()
+{
+    Console.WriteLine("Enter Flight Number: ");
+    string flightNo = Console.ReadLine().Trim();
+
+    Flight flight = flightDict[flightNo];
+
+    Console.WriteLine("Enter Boarding Gate Name: ");
+    string gateNo = Console.ReadLine().Trim();
+
+    BoardingGate gate = boardingGateDict[gateNo];
+
+    string specialReqCode = "None";
+    if (flight is CFFTFlight) specialReqCode = "CFFT";
+    else if (flight is DDJBFlight) specialReqCode = "DDJB";
+    else if (flight is LWTTFlight) specialReqCode = "LWTT";
+
+    Console.WriteLine($"Flight Number: {flight.FlightNumber}");
+    Console.WriteLine($"Origin: {flight.Origin}");
+    Console.WriteLine($"Destination: {flight.Destination}");
+    Console.WriteLine($"Expected Time: {flight.ExpectedTime:dd/MM/yyyy h:mm:ss tt}");
+    Console.WriteLine($"Special Request Code: {specialReqCode}");
+
+    Console.WriteLine($"Boarding Gate Name: {gate.GateName}");
+    Console.WriteLine($"Supports DDJB: {gate.SupportsDDJB}");
+    Console.WriteLine($"Supports CFFT: {gate.SupportsCFFT}");
+    Console.WriteLine($"Supports LWTT: {gate.SupportsLWTT}");
+
+    Console.WriteLine("Would you like to update the status of this flight? (Y/N)");
+    string choice = Console.ReadLine().Trim().ToUpper();
+
+    if (choice == "Y")
+    {
+        Console.WriteLine("1. Delayed");
+        Console.WriteLine("2. Boarding");
+        Console.WriteLine("3. On Time");
+        Console.WriteLine("Please select the new status of the flight: ");
+
+        string statusOption = Console.ReadLine().Trim();
+
+        if (statusOption == "1")
+        {
+            flight.Status = "Delayed";
+        }
+        else if (statusOption == "2")
+        {
+            flight.Status = "Boarding";
+        }
+        else if (statusOption == "3")
+        {
+            flight.Status = "On Time";
+        }
+
+        gate.Flight = flight;
+        Console.WriteLine($"Flight {flightNo} has been assigned to Boarding Gate {gateNo}!");
+    }
+}
