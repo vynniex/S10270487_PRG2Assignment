@@ -65,11 +65,12 @@ while (true)
         DisplayAirlineFlights();
         // ModifyFlight();
     }
-    else if (option == "7") // (WIP - display flight schedule)
+    else if (option == "7")
     {
         Console.WriteLine("=============================================");
         Console.WriteLine("Flight Schedule for Changi Airport Terminal 5");
         Console.WriteLine("=============================================");
+        DisplayFlightSchedule();
     }
     else if (option == "0")
     {
@@ -394,8 +395,56 @@ void ModifyFlight()
 
 }
 
-// Option 7 - Display Flight Schedule (!!)
+// Option 7 - Display Flight Schedule
 void DisplayFlightSchedule()
 {
+    // heading
+    Console.WriteLine("{0,-15} {1,-20} {2,-25} {3,-20} {4,-35} {5,-15} {6,-15}",
+            "Flight Number", "Airline Name", "Origin", "Destination", "Expected Departure/Arrival Time", "Status", "Boarding Status");
 
+    // Convert flightDict.Values to a list
+    List<Flight> flightList = flightDict.Values.ToList();
+
+    // Sort flights
+    for (int i = 0; i < flightList.Count - 1; i++)
+    {
+        for (int j = i + 1; j < flightList.Count; j++)
+        {
+            // If flight[i] is later than flight[j], swap
+            if (flightList[i].CompareTo(flightList[j]) > 0)
+            {
+                var temp = flightList[i];
+                flightList[i] = flightList[j];
+                flightList[j] = temp;
+            }
+        }
+    }
+
+    foreach (var flight in flightList)
+    {
+        string airlineCode = flight.FlightNumber.Substring(0, 2);
+        string airlineName = airlineDict.ContainsKey(airlineCode) ? airlineDict[airlineCode].Name : "Unknown";
+
+        // Determine the special request code (if any)
+        string specialRequest = flight is CFFTFlight ? "CFFT" :
+                                flight is DDJBFlight ? "DDJB" :
+                                flight is LWTTFlight ? "LWTT" : "None";
+
+        // Assign the boarding gate based on special request code
+        string boardingGate = "Unassigned";
+        foreach (var gate in boardingGateDict.Values)
+        {
+            if (specialRequest == "CFFT" && gate.SupportsCFFT ||
+                specialRequest == "DDJB" && gate.SupportsDDJB ||
+                specialRequest == "LWTT" && gate.SupportsLWTT)
+            {
+                boardingGate = gate.GateName;
+                break;
+            }
+        }
+
+        Console.WriteLine("{0,-15} {1,-20} {2,-25} {3,-20} {4,-35} {5,-15} {6,-15}",
+        flight.FlightNumber, airlineName, flight.Origin, flight.Destination,
+        flight.ExpectedTime.ToString("d/M/yyyy h:mm:ss tt"), flight.Status, boardingGate);
+    }
 }
