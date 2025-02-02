@@ -76,6 +76,13 @@ while (true)
         Console.WriteLine("=============================================");
         DisplayFlightSchedule();
     }
+    else if (option == "8")
+    {
+        Console.WriteLine("=============================================");
+        Console.WriteLine("Bulk processing of unassigned flights to boarding gates for Changi Airport Terminal 5");
+        Console.WriteLine("=============================================");
+        ProcessUnassignedFlights();
+    }
     else if (option == "0")
     {
         Console.WriteLine("Goodbye!");
@@ -83,9 +90,7 @@ while (true)
     }
     else
     {
-        {
-            Console.WriteLine("Invalid input. Please select a valid option (0-7).");
-        }
+        Console.WriteLine("Invalid input. Please select a valid option (0-8).");
     }
 }
 
@@ -102,6 +107,7 @@ void DisplayMenu()
     Console.WriteLine("5. Display Airline Flights");
     Console.WriteLine("6. Modify Flight Details");
     Console.WriteLine("7. Display Flight Schedule");
+    Console.WriteLine("8. Process Unassigned Flights");
     Console.WriteLine("0. Exit");
     Console.WriteLine("");
 }
@@ -609,4 +615,88 @@ void DisplayFlightSchedule()
         flight.FlightNumber, airlineName, flight.Origin, flight.Destination,
         flight.ExpectedTime.ToString("d/M/yyyy h:mm:ss tt"), flight.Status, boardingGate);
     }
+}
+
+// Advanced Feature (a) - Process all unassigned flights to boarding gates in bulk
+void ProcessUnassignedFlights()
+{
+    Queue<Flight> unassignedFlights = new Queue<Flight>();
+
+    foreach (var flight in flightDict.Values)
+    {
+        if (!boardingGateDict.Values.Any(g => g.Flight == flight))
+        {
+            unassignedFlights.Enqueue(flight);
+        }
+    }
+
+    int unassignedFlightCount = unassignedFlights.Count;
+    Console.WriteLine("");
+    Console.WriteLine($"Flights without Boarding Gate assigned: {unassignedFlightCount}");
+
+    List<BoardingGate> availGates = boardingGateDict.Values.Where(g => g.Flight == null).ToList();
+    int unassignedGateCount = availGates.Count;
+    Console.WriteLine($"Gates without flights assigned: {unassignedGateCount}");
+    Console.WriteLine("");
+
+    int flightsAssigned = 0;
+    int gatesAssigned = 0;
+
+    Console.WriteLine("=============================================");
+    Console.WriteLine("Flights Assigned to Boarding Gate");
+    Console.WriteLine("=============================================");
+    while (unassignedFlights.Count > 0)
+    {
+        Flight flight = unassignedFlights.Dequeue();
+        BoardingGate assignedGate = null;
+
+        if (flight is CFFTFlight || flight is DDJBFlight || flight is LWTTFlight)
+        {
+            assignedGate = availGates.FirstOrDefault(g => 
+                (flight is CFFTFlight && g.SupportsCFFT) ||
+                (flight is DDJBFlight && g.SupportsDDJB) ||
+                (flight is LWTTFlight && g.SupportsLWTT));
+        }
+        else
+        {
+            assignedGate = availGates.FirstOrDefault(g => !g.SupportsCFFT && !g.SupportsDDJB && !g.SupportsLWTT);
+        }
+
+        if (assignedGate != null)
+        {
+            assignedGate.Flight = flight;
+            availGates.Remove(assignedGate);
+            flightsAssigned++;
+            gatesAssigned++;
+
+            // Display details of assigned flight
+            Console.WriteLine($"Flight Number: {flight.FlightNumber}");
+            Console.WriteLine($"Airline Name: {airlineDict[flight.FlightNumber.Split(' ')[0]].Name}");
+            Console.WriteLine($"Origin: {flight.Origin}");
+            Console.WriteLine($"Destination: {flight.Destination}");
+            Console.WriteLine($"Expected Departure/Arrival Time: {flight.ExpectedTime:dd/MM/yyyy h:mm:ss tt}");
+            Console.WriteLine($"Special Request Code: {GetSpecialRequest(flight)}");
+            Console.WriteLine($"Assigned Boarding Gate: {assignedGate.GateName}");
+            Console.WriteLine("");
+        }
+    }
+
+    // Summary
+    Console.WriteLine("=============================================");
+    Console.WriteLine("Bulk Boarding Gate Assignment Complete!");
+    Console.WriteLine("=============================================");
+    Console.WriteLine($"Total Flights Processed: {unassignedFlightCount}");
+    Console.WriteLine($"Total Boarding Gates Processed: {unassignedGateCount}");
+    Console.WriteLine("");
+    Console.WriteLine($"Total Flights Assigned: {flightsAssigned}");
+    Console.WriteLine($"Total Boarding Gates Assigned: {gatesAssigned}");
+}
+
+// helper function to get special request code**
+string GetSpecialRequest(Flight flight)
+{
+    if (flight is CFFTFlight) return "CFFT";
+    if (flight is DDJBFlight) return "DDJB";
+    if (flight is LWTTFlight) return "LWTT";
+    return "None";
 }
