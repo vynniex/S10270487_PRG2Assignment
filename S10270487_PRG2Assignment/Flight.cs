@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace S10270487_PRG2Assignment
 {
-    abstract class Flight
+    abstract class Flight : IComparable<Flight>
     {
         // properties
         public string FlightNumber { get; set; }
@@ -24,6 +24,12 @@ namespace S10270487_PRG2Assignment
             Destination = dest;
             ExpectedTime = expTime;
             Status = status;
+        }
+
+        // IComparable
+        public int CompareTo(Flight other)
+        {
+            return this.ExpectedTime.CompareTo(other.ExpectedTime);
         }
 
         // methods
