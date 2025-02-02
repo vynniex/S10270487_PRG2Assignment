@@ -18,6 +18,9 @@ Dictionary<string, Flight> flightDict = new Dictionary<string, Flight>();
 LoadAirlines();
 LoadBoardingGates();
 LoadFlights();
+Console.WriteLine("");
+Console.WriteLine("");
+Console.WriteLine("");
 
 // Main Program
 while (true)
@@ -108,6 +111,9 @@ void LoadAirlines()
 {
     using (StreamReader sr = new StreamReader("airlines.csv"))
     {
+        Console.WriteLine("Loading Airlines...");
+        int count = 0;
+
         sr.ReadLine();  // skips the header
         while (!sr.EndOfStream)
         {
@@ -117,12 +123,18 @@ void LoadAirlines()
 
             Airline airline = new Airline(airlineName, airlineCode);
             airlineDict[airlineCode] = airline;
+            count++;
         }
+        
+        Console.WriteLine($"{count} Airlines Loaded!");
     }
 }
 
 void LoadBoardingGates()
 {
+    Console.WriteLine("Loading Boarding Gates...");
+    int count = 0;
+
     using (StreamReader sr = new StreamReader("boardinggates.csv"))
     {
         sr.ReadLine();
@@ -137,12 +149,18 @@ void LoadBoardingGates()
 
             BoardingGate gate = new BoardingGate(gateNo, supportsCFFT, supportsDDJB, supportsLWTT);
             boardingGateDict[gateNo] = gate;
+            count++;
         }
+
+        Console.WriteLine($"{count} Boarding Gates Loaded!");
     }
 }
 
 void LoadFlights()
 {
+    Console.WriteLine("Loading Flights...");
+    int count = 0;
+
     using (StreamReader sr = new StreamReader("flights.csv"))
     {
         sr.ReadLine();  // skips the header
@@ -178,9 +196,10 @@ void LoadFlights()
             }
 
             airlineDict[airlineCode].AddFlight(flight); // adds flight to airline
-
             flightDict[flightNo] = flight;  // adds flight to flightDict
+            count++;
         }
+        Console.WriteLine($"{count} Flights Loaded!");
     }
 }
 
