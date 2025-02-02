@@ -52,6 +52,9 @@ while (true)
     }
     else if (option == "4")
     {
+        Console.WriteLine("=============================================");
+        Console.WriteLine("Creation of Flight");
+        Console.WriteLine("=============================================");
         CreateFlight();
     }
     else if (option == "5")
