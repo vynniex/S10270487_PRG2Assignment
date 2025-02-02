@@ -6,6 +6,7 @@
 
 using S10270487_PRG2Assignment;
 using S10270487_PRG2Assignment.Specialized_Flight_Classes;
+using System;
 using System.Diagnostics.Metrics;
 
 // Dictionaries -
@@ -74,10 +75,16 @@ while (true)
     }
     else if (option == "0")
     {
+        Console.WriteLine("Goodbye!");
         break;
     }
+    else
+    {
+        {
+            Console.WriteLine("Invalid input. Please select a valid option (0-7).");
+        }
+    }
 }
-Console.WriteLine("Goodbye!");
 
 // DisplayMenu Method
 void DisplayMenu()
@@ -368,10 +375,25 @@ void DisplayAirlineFlights()
         Console.WriteLine("{0,-15} {1,-30}", airline.Code, airline.Name);
     }
 
-    Console.Write("Enter Airline Code: ");
-    string airlineCode = Console.ReadLine().Trim().ToUpper();
+    // User input airline code validation 
+    string airlineCode;
+    Airline selectedAirline = null;
 
-    Airline selectedAirline = airlineDict[airlineCode];
+    while (true)
+    {
+        Console.Write("Enter Airline Code: ");
+        airlineCode = Console.ReadLine().Trim().ToUpper();
+
+        if (airlineDict.ContainsKey(airlineCode))
+        {
+            selectedAirline = airlineDict[airlineCode];
+            break;
+        }
+        else
+        {
+            Console.WriteLine("Invalid airline code. Please enter a valid airline code from the list above.");
+        }
+    }
 
     Console.WriteLine("=============================================");
     Console.WriteLine($"List of Flights for {selectedAirline.Name}");
