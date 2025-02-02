@@ -22,7 +22,7 @@ LoadBoardingGates();
 while (true)
 {
     DisplayMenu();
-    Console.Write("\nPlease select your option: ");
+    Console.WriteLine("Please select your option: ");
     string option = Console.ReadLine().Trim();
 
     if (option == "1")
@@ -48,7 +48,7 @@ while (true)
     }
     else if (option == "4")
     {
-        Console.WriteLine("");
+        CreateFlight();
     }
     else if (option == "5")
     {
@@ -57,13 +57,19 @@ while (true)
         Console.WriteLine("=============================================");
         DisplayAirlineFlights();
     }
-    else if (option == "6")
+    else if (option == "6") // (WIP - Modify flight)
     {
-        Console.WriteLine("");
+        Console.WriteLine("=============================================");
+        Console.WriteLine("List of Airlines for Changi Airport Terminal 5");
+        Console.WriteLine("=============================================");
+        DisplayAirlineFlights();
+        // ModifyFlight();
     }
-    else if (option == "7")
+    else if (option == "7") // (WIP - display flight schedule)
     {
-        Console.WriteLine("");
+        Console.WriteLine("=============================================");
+        Console.WriteLine("Flight Schedule for Changi Airport Terminal 5");
+        Console.WriteLine("=============================================");
     }
     else if (option == "0")
     {
@@ -72,7 +78,7 @@ while (true)
 }
 Console.WriteLine("Goodbye!");
 
-// DisplayMenu Method -
+// DisplayMenu Method
 void DisplayMenu()
 {
     Console.WriteLine("=============================================");
@@ -86,7 +92,7 @@ void DisplayMenu()
     Console.WriteLine("6. Modify Flight Details");
     Console.WriteLine("7. Display Flight Schedule");
     Console.WriteLine("0. Exit");
-    Console.WriteLine("----------------------------------------------");
+    Console.WriteLine("");
 }
 
 // Load Methods
@@ -264,6 +270,93 @@ void AssignBoardingGates()
     }
 }
 
+// Option 4 - Create Flight
+void CreateFlight()
+{
+    // User input
+    Console.Write("Enter Flight Number: ");
+    string flightNo = Console.ReadLine().Trim();
+
+    // Checks & Prevents duplicate flight numbers
+    if (flightDict.ContainsKey(flightNo))
+    {
+        Console.WriteLine("Flight number already exists. Flight not created.");
+        return;
+    }
+
+    // User input (continued)
+    Console.Write("Enter Origin: ");
+    string flightOrigin = Console.ReadLine().Trim();
+    Console.Write("Enter Destination: ");
+    string flightDest = Console.ReadLine().Trim();
+    Console.Write("Enter Expected Departure/Arrival Time (dd/mm/yyyy hh:mm): ");
+
+    // Flight Time input validation
+    DateTime flightTime;
+    while (true)
+    {
+        string input = Console.ReadLine().Trim();
+        try
+        {
+            flightTime = DateTime.Parse(input);
+            break;
+        }
+        catch (FormatException)
+        {
+            Console.Write("Invalid format. Please enter Expected Departure/Arrival Time (dd/MM/yyyy HH:mm): ");
+        }
+    }
+    Console.Write("Enter Special Request Code (CFFT/DDJB/LWTT/None): ");
+    string flightReq = Console.ReadLine().Trim().ToUpper();
+
+    Flight newFlight;
+    // Create new Flight object
+    if (flightReq == "NONE")
+    {
+        newFlight = new NORMFlight(flightNo, flightOrigin, flightDest, flightTime, "Scheduled");
+    }
+    else if (flightReq == "CFFT")
+    {
+        newFlight = new CFFTFlight(flightNo, flightOrigin, flightDest, flightTime, "Scheduled", 150);
+    }
+    else if (flightReq == "DDJB")
+    {
+        newFlight = new DDJBFlight(flightNo, flightOrigin, flightDest, flightTime, "Scheduled", 300);
+    }
+    else if (flightReq == "LWTT")
+    {
+        newFlight = new LWTTFlight(flightNo, flightOrigin, flightDest, flightTime, "Scheduled", 500);
+    }
+    else
+    {
+        Console.WriteLine("Invalid request code. Flight not created.");
+        return;
+    }
+    
+    // Add to dictionary
+    flightDict[flightNo] = newFlight;
+
+    // Append to flights.csv file
+    using (StreamWriter sw = new StreamWriter("flights.csv", true))
+    {
+        sw.WriteLine($"{flightNo},{flightOrigin},{flightDest},{flightTime:hh:mm tt},{flightReq}");
+    }
+
+    Console.WriteLine($"Flight {flightNo} has been added!");
+
+    // Add another flight
+    Console.WriteLine("Would you like to add another flight ? (Y / N)");
+    string choice = Console.ReadLine().Trim().ToUpper();
+    if (choice == "Y")
+    {
+        CreateFlight();
+    }
+    else if (choice != "N")
+    {
+        Console.WriteLine("Invalid input.");
+    }
+}
+
 // Option 5 - Display Airline Flights
 void DisplayAirlineFlights()
 {
@@ -295,7 +388,14 @@ void DisplayAirlineFlights()
     }
 }
 
-// Option 6 - Modify Flight Details
+// Option 6 - Modify Flight Details (!!)
+void ModifyFlight()
+{
 
+}
 
-// Option 7 - Display Flight Schedule
+// Option 7 - Display Flight Schedule (!!)
+void DisplayFlightSchedule()
+{
+
+}
