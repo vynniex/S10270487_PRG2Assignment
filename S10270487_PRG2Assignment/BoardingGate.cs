@@ -1,4 +1,10 @@
-﻿using S10270487_PRG2Assignment.Specialized_Flight_Classes;
+﻿//==========================================================
+// Student Number	: S10270487
+// Student Name	: Wee Xin Yi
+// Partner Name	: Loh Xue Ning
+//==========================================================
+
+using S10270487_PRG2Assignment.Specialized_Flight_Classes;
 using System;
 using System.Collections.Generic;
 using System.Linq;

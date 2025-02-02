@@ -1,6 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+//==========================================================
+// Student Number	: S10270487
+// Student Name	: Wee Xin Yi
+// Partner Name	: Loh Xue Ning
+//==========================================================
+
 using System.Text;
 using System.Threading.Tasks;
 
