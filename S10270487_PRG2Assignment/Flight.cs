@@ -4,6 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+//==========================================================
+// Student Number	: S10270487
+// Student Name	: Wee Xin Yi
+// Partner Name	: Loh Xue Ning
+//==========================================================
+
 namespace S10270487_PRG2Assignment
 {
     abstract class Flight : IComparable<Flight>
