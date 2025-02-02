@@ -6,6 +6,7 @@
 
 using S10270487_PRG2Assignment;
 using S10270487_PRG2Assignment.Specialized_Flight_Classes;
+using System.Diagnostics.Metrics;
 
 // Dictionaries -
 Dictionary<string, Airline> airlineDict = new Dictionary<string, Airline>();
@@ -16,7 +17,6 @@ Dictionary<string, Flight> flightDict = new Dictionary<string, Flight>();
 LoadAirlines();
 LoadBoardingGates();
 LoadFlights();
-LoadBoardingGates();
 
 // Main Program
 while (true)
@@ -57,13 +57,13 @@ while (true)
         Console.WriteLine("=============================================");
         DisplayAirlineFlights();
     }
-    else if (option == "6") // (WIP - Modify flight)
+    else if (option == "6")
     {
         Console.WriteLine("=============================================");
         Console.WriteLine("List of Airlines for Changi Airport Terminal 5");
         Console.WriteLine("=============================================");
         DisplayAirlineFlights();
-        // ModifyFlight();
+        ModifyFlight();
     }
     else if (option == "7")
     {
@@ -389,10 +389,131 @@ void DisplayAirlineFlights()
     }
 }
 
-// Option 6 - Modify Flight Details (!!)
+// Option 6 - Modify Flight Details
 void ModifyFlight()
 {
+    while (true)
+    {
+        Console.WriteLine("Choose an existing Flight to modify or delete: ");
+        string chosenFlight = Console.ReadLine().Trim().ToUpper();
 
+        if (flightDict.ContainsKey(chosenFlight))
+        {
+            Flight selectedFlight = flightDict[chosenFlight];
+
+            Console.WriteLine("1.Modify Flight");
+            Console.WriteLine("2.Delete Flight");
+            Console.Write("Choose an option: ");
+            string option = Console.ReadLine().Trim();
+
+            // 1. Modify flight
+            if (option == "1")
+            {
+                Console.WriteLine("1. Modify Basic Information");
+                Console.WriteLine("2. Modify Status");
+                Console.WriteLine("3. Modify Special Request Code");
+                Console.WriteLine("4. Modify Boarding Gate");
+                Console.Write("Choose an option: ");
+                string modifyOption = Console.ReadLine();
+
+                if (modifyOption == "1") // Modify Basic Information
+                {
+                    Console.Write(" Enter new Origin: ");
+                    string newOrigin = Console.ReadLine();
+                    Console.Write("Enter new Destination: ");
+                    string newDest = Console.ReadLine();
+
+                    // DateTime input validation
+                    Console.Write("Enter new Expected Departure / Arrival Time(dd / mm / yyyy hh: mm):");
+                    string inputNewTime = Console.ReadLine();
+                    DateTime newTime;
+                    if (DateTime.TryParseExact(inputNewTime, "d/M/yyyy h:mm", null, System.Globalization.DateTimeStyles.None, out newTime))
+                    {
+                        // Update the values in dictionary
+                        selectedFlight.Origin = newOrigin;
+                        selectedFlight.Destination = newDest;
+                        selectedFlight.ExpectedTime = newTime;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid date format. Please use dd/mm/yyyy hh:mm.");
+                    }
+                }
+                else if (modifyOption == "2")
+                {
+                    Console.Write("Status: ");
+                    string modifiedStatus = Console.ReadLine();
+                    selectedFlight.Status = modifiedStatus;
+                    Console.WriteLine("Flight status updated successfully.");
+                }
+                else if (modifyOption == "3")
+                {
+                    Console.Write("Special Request Code: ");
+                    string modifiedReq = Console.ReadLine().Trim().ToUpper();
+                    if (modifiedReq == "CFFT")
+                        selectedFlight = new CFFTFlight(selectedFlight.FlightNumber, selectedFlight.Origin, selectedFlight.Destination, selectedFlight.ExpectedTime, selectedFlight.Status, 150);
+                    else if (modifiedReq == "DDJB")
+                        selectedFlight = new DDJBFlight(selectedFlight.FlightNumber, selectedFlight.Origin, selectedFlight.Destination, selectedFlight.ExpectedTime, selectedFlight.Status, 300);
+                    else if (modifiedReq == "LWTT")
+                        selectedFlight = new LWTTFlight(selectedFlight.FlightNumber, selectedFlight.Origin, selectedFlight.Destination, selectedFlight.ExpectedTime, selectedFlight.Status, 500);
+                    else if (modifiedReq == "NONE")
+                        selectedFlight = new NORMFlight(selectedFlight.FlightNumber, selectedFlight.Origin, selectedFlight.Destination, selectedFlight.ExpectedTime, selectedFlight.Status);
+
+                    else
+                    {
+                        Console.WriteLine("Invalid Special Request Code. Valid options are: CFFT, DDJB, LWTT, None.");
+                        return;
+                    }
+                }
+                else if (modifyOption == "4")
+                {
+                    Console.Write("Boarding Gate: ");
+                    string modifiedGate = Console.ReadLine();
+
+                    if (!boardingGateDict.ContainsKey(modifiedGate))
+                    {
+                        Console.WriteLine("Invalid boarding gate. Please enter an existing gate.");
+                        return;
+                    }
+
+                    // Remove flight from the previous boarding gate if it was assigned
+                    var existingGate = boardingGateDict.FirstOrDefault(g => g.Value.Flight != null && g.Value.Flight.FlightNumber == chosenFlight);
+                    if (!string.IsNullOrEmpty(existingGate.Key))
+                    {
+                        existingGate.Value.Flight = null;
+                    }
+
+                    // Assign the new boarding gate to the flight
+                    BoardingGate gate = boardingGateDict[modifiedGate];
+                    gate.Flight = selectedFlight;
+                    Console.WriteLine("Boarding gate updated!");
+                }
+            }
+            // 2. Delete flight
+            else if (option == "2") 
+            {
+                // Remove flight from any boarding gate it might be assigned to
+                var gateEntry = boardingGateDict.FirstOrDefault(g => g.Value.Flight != null && g.Value.Flight.FlightNumber == chosenFlight);
+                if (!string.IsNullOrEmpty(gateEntry.Key))
+                {
+                    gateEntry.Value.Flight = null;
+                }
+
+                flightDict.Remove(chosenFlight);
+                Console.WriteLine("Flight deleted successfully.");
+                break;
+            }
+            else
+            {
+                Console.WriteLine("Invalid option. Please select 1 or 2");
+                return;
+            }
+        }
+        else
+        {
+            Console.WriteLine("Invalid Flight Number. Please select an existing Flight Number from the list.");
+        }
+    }
 }
 
 // Option 7 - Display Flight Schedule
