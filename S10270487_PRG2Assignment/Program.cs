@@ -250,13 +250,43 @@ void ListBoardingGates()
 // Option 3 - Assign Boarding Gate To A Flight
 void AssignBoardingGates()
 {
-    Console.WriteLine("Enter Flight Number: ");
-    string flightNo = Console.ReadLine().Trim();
+    // Flight Number Validation
+    string flightNo = "";
+    bool flag = false;
+    while (!flag)
+    {
+        Console.WriteLine("Enter Flight Number: ");
+        flightNo = Console.ReadLine().Trim();
+
+        if (!flightDict.ContainsKey(flightNo))
+        {
+            Console.WriteLine("Invalid Flight Number. Please try again.");
+        }
+        else
+        {
+            flag = true;
+        }
+    }
 
     Flight flight = flightDict[flightNo];
 
-    Console.WriteLine("Enter Boarding Gate Name: ");
-    string gateNo = Console.ReadLine().Trim();
+    // Boarding Gate Validation
+    string gateNo = "";
+    flag = false;
+    while (!flag)
+    {
+        Console.WriteLine("Enter Boarding Gate Name: ");
+        gateNo = Console.ReadLine().Trim().ToUpper();
+
+        if (!boardingGateDict.ContainsKey(gateNo))
+        {
+            Console.WriteLine("Invalid Boarding Gate. Please try again.");
+        }
+        else
+        {
+            flag = true;
+        }
+    }
 
     BoardingGate gate = boardingGateDict[gateNo];
 
@@ -276,8 +306,23 @@ void AssignBoardingGates()
     Console.WriteLine($"Supports CFFT: {gate.SupportsCFFT}");
     Console.WriteLine($"Supports LWTT: {gate.SupportsLWTT}");
 
-    Console.WriteLine("Would you like to update the status of this flight? (Y/N)");
-    string choice = Console.ReadLine().Trim().ToUpper();
+    // Status Option Validation
+    string choice = "";
+    flag = false;
+    while (!flag)
+    {
+        Console.WriteLine("Would you like to update the status of this flight? (Y/N)");
+        choice = Console.ReadLine().Trim().ToUpper();
+
+        if (choice == "Y" || choice == "N")
+        {
+            flag = true;
+        }
+        else
+        {
+            Console.WriteLine("Invalid choice. Please enter 'Y' or 'N'.");
+        }
+    }
 
     if (choice == "Y")
     {
@@ -309,87 +354,115 @@ void AssignBoardingGates()
 // Option 4 - Create Flight
 void CreateFlight()
 {
-    // User input
-    Console.Write("Enter Flight Number: ");
-    string flightNo = Console.ReadLine().Trim();
-
-    // Checks & Prevents duplicate flight numbers
-    if (flightDict.ContainsKey(flightNo))
+    bool addAnotherFlight = true;
+    while (addAnotherFlight)
     {
-        Console.WriteLine("Flight number already exists. Flight not created.");
-        return;
-    }
+        Console.Write("Enter Flight Number: ");
+        string flightNo = Console.ReadLine().Trim();
 
-    // User input (continued)
-    Console.Write("Enter Origin: ");
-    string flightOrigin = Console.ReadLine().Trim();
-    Console.Write("Enter Destination: ");
-    string flightDest = Console.ReadLine().Trim();
-    Console.Write("Enter Expected Departure/Arrival Time (dd/mm/yyyy hh:mm): ");
-
-    // Flight Time input validation
-    DateTime flightTime;
-    while (true)
-    {
-        string input = Console.ReadLine().Trim();
-        try
+        // Prevent duplicate flight numbers
+        if (flightDict.ContainsKey(flightNo))
         {
-            flightTime = DateTime.Parse(input);
-            break;
+            Console.WriteLine("Flight number already exists. Please choose a different number.");
+            return;
         }
-        catch (FormatException)
+
+        Console.Write("Enter Origin: ");
+        string flightOrigin = Console.ReadLine().Trim();
+        Console.Write("Enter Destination: ");
+        string flightDest = Console.ReadLine().Trim();
+
+        // Flight Time input validation
+        DateTime flightTime;
+        while (true)
         {
-            Console.Write("Invalid format. Please enter Expected Departure/Arrival Time (dd/MM/yyyy HH:mm): ");
+            Console.Write("Enter Expected Departure/Arrival Time (dd/MM/yyyy HH:mm): ");
+            string inputTime = Console.ReadLine().Trim();
+
+            bool isValidTime = DateTime.TryParseExact(inputTime, "dd/MM/yyyy HH:mm", null, System.Globalization.DateTimeStyles.None, out flightTime);
+
+            if (isValidTime)
+            {
+                break;
+            }
+            else
+            {
+                Console.WriteLine("Invalid format. Please enter the time in the format dd/MM/yyyy HH:mm.");
+            }
         }
-    }
-    Console.Write("Enter Special Request Code (CFFT/DDJB/LWTT/None): ");
-    string flightReq = Console.ReadLine().Trim().ToUpper();
 
-    Flight newFlight;
-    // Create new Flight object
-    if (flightReq == "NONE")
-    {
-        newFlight = new NORMFlight(flightNo, flightOrigin, flightDest, flightTime, "Scheduled");
-    }
-    else if (flightReq == "CFFT")
-    {
-        newFlight = new CFFTFlight(flightNo, flightOrigin, flightDest, flightTime, "Scheduled", 150);
-    }
-    else if (flightReq == "DDJB")
-    {
-        newFlight = new DDJBFlight(flightNo, flightOrigin, flightDest, flightTime, "Scheduled", 300);
-    }
-    else if (flightReq == "LWTT")
-    {
-        newFlight = new LWTTFlight(flightNo, flightOrigin, flightDest, flightTime, "Scheduled", 500);
-    }
-    else
-    {
-        Console.WriteLine("Invalid request code. Flight not created.");
-        return;
-    }
-    
-    // Add to dictionary
-    flightDict[flightNo] = newFlight;
+        // Special Request Code validation
+        string flightReq;
+        while (true)
+        {
+            Console.Write("Enter Special Request Code (CFFT/DDJB/LWTT/None): ");
+            flightReq = Console.ReadLine().Trim().ToUpper();
 
-    // Append to flights.csv file
-    using (StreamWriter sw = new StreamWriter("flights.csv", true))
-    {
-        sw.WriteLine($"{flightNo},{flightOrigin},{flightDest},{flightTime:hh:mm tt},{flightReq}");
-    }
+            if (flightReq == "CFFT" || flightReq == "DDJB" || flightReq == "LWTT" || flightReq == "NONE")
+            {
+                break;
+            }
+            else
+            {
+                Console.WriteLine("Invalid request code. Please try again.");
+            }
+        }
 
-    Console.WriteLine($"Flight {flightNo} has been added!");
+        Flight newFlight;
+        // Create new Flight object
+        if (flightReq == "NONE")
+        {
+            newFlight = new NORMFlight(flightNo, flightOrigin, flightDest, flightTime, "Scheduled");
+        }
+        else if (flightReq == "CFFT")
+        {
+            newFlight = new CFFTFlight(flightNo, flightOrigin, flightDest, flightTime, "Scheduled", 150);
+        }
+        else if (flightReq == "DDJB")
+        {
+            newFlight = new DDJBFlight(flightNo, flightOrigin, flightDest, flightTime, "Scheduled", 300);
+        }
+        else if (flightReq == "LWTT")
+        {
+            newFlight = new LWTTFlight(flightNo, flightOrigin, flightDest, flightTime, "Scheduled", 500);
+        }
+        else
+        {
+            Console.WriteLine("Invalid request code. Flight not created.");
+            return;
+        }
 
-    // Add another flight
-    Console.WriteLine("Would you like to add another flight ? (Y / N)");
-    string choice = Console.ReadLine().Trim().ToUpper();
-    if (choice == "Y")
-    {
-        CreateFlight();
-    }
-    else if (choice != "N")
-    {
-        Console.WriteLine("Invalid input.");
+        // Add to dictionary
+        flightDict[flightNo] = newFlight;
+
+        // Append to flights.csv file
+        using (StreamWriter sw = new StreamWriter("flights.csv", true))
+        {
+            sw.WriteLine($"{flightNo},{flightOrigin},{flightDest},{flightTime:hh:mm tt},{flightReq}");
+        }
+
+        Console.WriteLine($"Flight {flightNo} has been added!");
+
+        // Add another flight
+        bool validChoice = false;
+        while (!validChoice)
+        {
+            Console.WriteLine("Would you like to add another flight? (Y / N)");
+            string choice = Console.ReadLine().Trim().ToUpper();
+            if (choice == "Y")
+            {
+                validChoice = true;
+            }
+            else if (choice == "N")
+            {
+                addAnotherFlight = false;
+                validChoice = true;
+            }
+            else
+            {
+                Console.WriteLine("Invalid input. Please enter 'Y' or 'N'.");
+            }
+        }
     }
 }
 
