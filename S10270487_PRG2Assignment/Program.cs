@@ -372,7 +372,7 @@ void CreateFlight()
         Console.Write("Enter Destination: ");
         string flightDest = Console.ReadLine().Trim();
 
-        // Flight Time input validation
+        // Flight Time validation
         DateTime flightTime;
         while (true)
         {
@@ -432,7 +432,6 @@ void CreateFlight()
             return;
         }
 
-        // Add to dictionary
         flightDict[flightNo] = newFlight;
 
         // Append to flights.csv file
@@ -616,10 +615,19 @@ void ModifyFlight()
             else if (option == "2") 
             {
                 // Remove flight from any boarding gate it might be assigned to
-                var gateEntry = boardingGateDict.FirstOrDefault(g => g.Value.Flight != null && g.Value.Flight.FlightNumber == chosenFlight);
-                if (!string.IsNullOrEmpty(gateEntry.Key))
+                string gateEntryKey = null;
+                foreach (var gate in boardingGateDict)
                 {
-                    gateEntry.Value.Flight = null;
+                    if (gate.Value.Flight != null && gate.Value.Flight.FlightNumber == chosenFlight)
+                    {
+                        gateEntryKey = gate.Key;
+                        break;
+                    }
+                }
+
+                if (gateEntryKey != null)
+                {
+                    boardingGateDict[gateEntryKey].Flight = null;
                 }
 
                 flightDict.Remove(chosenFlight);
@@ -642,7 +650,6 @@ void ModifyFlight()
 // Option 7 - Display Flight Schedule
 void DisplayFlightSchedule()
 {
-    // heading
     Console.WriteLine("{0,-15} {1,-20} {2,-25} {3,-20} {4,-35} {5,-15} {6,-15}",
             "Flight Number", "Airline Name", "Origin", "Destination", "Expected Departure/Arrival Time", "Status", "Boarding Status");
 
